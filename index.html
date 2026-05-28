@@ -891,7 +891,7 @@ async function runInspect(){
 
   await new Promise(resolve=>setTimeout(resolve,2000));
 
-  const randomError = Math.random() < 0.1;
+  const randomError = Math.random() < 0.0;
 
   if(randomError){
     showError("Simulasi server timeout.");
