@@ -1,0 +1,1071 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QualityEye — Demo</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap');
+
+:root {
+  --black: #0a0a0a;
+  --white: #f5f2ed;
+  --green: #1a7a4a;
+  --green-light: #d4f0e0;
+  --green-bright: #22c55e;
+  --red: #9b1c1c;
+  --red-light: #fee2e2;
+  --red-bright: #ef4444;
+  --amber: #92400e;
+  --amber-light: #fef3c7;
+  --amber-bright: #f59e0b;
+  --gray: #6b7280;
+  --border: #e5e0d8;
+  --surface: #faf8f5;
+  --mono: 'DM Mono', monospace;
+  --sans: 'Syne', sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--sans);
+  background: var(--black);
+  color: var(--white);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* HEADER */
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 2rem;
+  border-bottom: 1px solid #1f1f1f;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.logo-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--green-bright);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(0.85); }
+}
+
+.header-meta {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: #555;
+  letter-spacing: 0.05em;
+}
+
+/* LAYOUT */
+.main {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+}
+
+/* LEFT PANEL — INPUT */
+.panel-left {
+  border-right: 1px solid #1f1f1f;
+  display: flex;
+  flex-direction: column;
+}
+
+.panel-right {
+  display: flex;
+  flex-direction: column;
+}
+
+.panel-header {
+  padding: 1.25rem 1.75rem;
+  border-bottom: 1px solid #1f1f1f;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.panel-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: #555;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.panel-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+/* CONFIG ROW */
+.config-row {
+  display: flex;
+  gap: 10px;
+  padding: 1rem 1.75rem;
+  border-bottom: 1px solid #1f1f1f;
+}
+
+.config-item {
+  flex: 1;
+}
+
+.config-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: #555;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.config-select {
+  width: 100%;
+  background: #111;
+  border: 1px solid #2a2a2a;
+  color: var(--white);
+  font-family: var(--mono);
+  font-size: 11px;
+  padding: 6px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6' fill='none' stroke='%23555' stroke-width='1.5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  padding-right: 24px;
+}
+
+/* UPLOAD ZONE */
+.upload-zone {
+  flex: 1;
+  margin: 1.25rem 1.75rem;
+  border: 1.5px dashed #2a2a2a;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+  position: relative;
+  overflow: hidden;
+  min-height: 240px;
+}
+
+.upload-zone:hover {
+  border-color: #3a3a3a;
+  background: #0f0f0f;
+}
+
+.upload-zone.dragover {
+  border-color: var(--green-bright);
+  background: rgba(34,197,94,0.04);
+}
+
+.upload-zone.has-image {
+  border-color: #2a2a2a;
+}
+
+.upload-placeholder {
+  text-align: center;
+  pointer-events: none;
+}
+
+.upload-icon {
+  font-size: 2.5rem;
+  margin-bottom: 10px;
+  opacity: 0.25;
+}
+
+.upload-text {
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.upload-sub {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: #555;
+}
+
+#preview-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 12px;
+  display: none;
+}
+
+#file-input { display: none; }
+
+/* ACTIONS */
+.actions {
+  padding: 1rem 1.75rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.btn-inspect {
+  width: 100%;
+  padding: 14px;
+  background: var(--white);
+  color: var(--black);
+  border: none;
+  border-radius: 6px;
+  font-family: var(--sans);
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: -0.01em;
+  transition: background 0.15s, transform 0.1s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-inspect:hover { background: #e8e4df; }
+.btn-inspect:active { transform: scale(0.99); }
+.btn-inspect:disabled { background: #1f1f1f; color: #555; cursor: not-allowed; transform: none; }
+
+.btn-clear {
+  width: 100%;
+  padding: 10px;
+  background: transparent;
+  color: #555;
+  border: 1px solid #1f1f1f;
+  border-radius: 6px;
+  font-family: var(--mono);
+  font-size: 11px;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+  letter-spacing: 0.05em;
+}
+
+.btn-clear:hover { color: var(--white); border-color: #3a3a3a; }
+
+/* RESULT PANEL */
+.result-area {
+  flex: 1;
+  padding: 1.75rem;
+  display: flex;
+  flex-direction: column;
+}
+
+/* IDLE STATE */
+.result-idle {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 8px;
+  color: #2a2a2a;
+}
+
+.result-idle-icon { font-size: 3rem; }
+.result-idle-text { font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; }
+
+/* LOADING STATE */
+.result-loading {
+  flex: 1;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 2px solid #1f1f1f;
+  border-top-color: var(--white);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.loading-text {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: #555;
+  letter-spacing: 0.08em;
+}
+
+.loading-steps {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: #333;
+  text-align: center;
+  line-height: 1.8;
+}
+
+/* RESULT CARD */
+.result-card {
+  display: none;
+  flex-direction: column;
+  gap: 16px;
+  animation: fadeUp 0.35s ease;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.verdict-banner {
+  border-radius: 8px;
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.verdict-banner.pass { background: var(--green-light); }
+.verdict-banner.fail { background: var(--red-light); }
+.verdict-banner.uncertain { background: var(--amber-light); }
+
+.verdict-icon { font-size: 2.2rem; }
+
+.verdict-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 3px;
+}
+
+.verdict-banner.pass .verdict-label { color: var(--green); }
+.verdict-banner.fail .verdict-label { color: var(--red); }
+.verdict-banner.uncertain .verdict-label { color: var(--amber); }
+
+.verdict-title {
+  font-size: 1.4rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.verdict-banner.pass .verdict-title { color: var(--green); }
+.verdict-banner.fail .verdict-title { color: var(--red); }
+.verdict-banner.uncertain .verdict-title { color: var(--amber); }
+
+.verdict-conf {
+  margin-left: auto;
+  text-align: right;
+}
+
+.conf-num {
+  font-family: var(--mono);
+  font-size: 1.6rem;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.verdict-banner.pass .conf-num { color: var(--green); }
+.verdict-banner.fail .conf-num { color: var(--red); }
+.verdict-banner.uncertain .conf-num { color: var(--amber); }
+
+.conf-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: #999;
+  letter-spacing: 0.08em;
+}
+
+/* DETAIL ROWS */
+.detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.detail-cell {
+  background: #111;
+  border: 1px solid #1f1f1f;
+  border-radius: 6px;
+  padding: 10px 12px;
+}
+
+.detail-cell-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: #555;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.detail-cell-value {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--white);
+}
+
+/* DESCRIPTION */
+.result-desc {
+  background: #0d0d0d;
+  border: 1px solid #1f1f1f;
+  border-radius: 6px;
+  padding: 14px 16px;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: #aaa;
+  line-height: 1.7;
+}
+
+/* RECOMMENDATION */
+.result-rec {
+  border-radius: 6px;
+  padding: 12px 16px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.result-rec.pass { background: rgba(34,197,94,0.08); color: var(--green-bright); border: 1px solid rgba(34,197,94,0.15); }
+.result-rec.fail { background: rgba(239,68,68,0.08); color: #f87171; border: 1px solid rgba(239,68,68,0.15); }
+.result-rec.uncertain { background: rgba(245,158,11,0.08); color: #fbbf24; border: 1px solid rgba(245,158,11,0.15); }
+
+/* LOG */
+.log-section {
+  border-top: 1px solid #1f1f1f;
+}
+
+.log-header {
+  padding: 0.75rem 1.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #1f1f1f;
+}
+
+.log-count {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: #555;
+  letter-spacing: 0.08em;
+}
+
+.log-list {
+  max-height: 130px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #2a2a2a transparent;
+}
+
+.log-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 1.75rem;
+  border-bottom: 1px solid #111;
+  font-family: var(--mono);
+  font-size: 11px;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+.log-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.log-dot.pass { background: var(--green-bright); }
+.log-dot.fail { background: var(--red-bright); }
+.log-dot.uncertain { background: var(--amber-bright); }
+
+.log-product { color: #aaa; flex: 1; }
+.log-type { color: #555; min-width: 120px; }
+.log-time { color: #333; }
+
+/* STATUS BAR */
+footer {
+  border-top: 1px solid #1f1f1f;
+  padding: 0.6rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.footer-left {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: #555;
+  letter-spacing: 0.06em;
+}
+
+.stat-block { display: flex; gap: 5px; align-items: baseline; }
+.stat-num { font-size: 13px; font-weight: 500; color: var(--white); }
+
+.footer-right {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: #2a2a2a;
+}
+
+/* CAMERA HINT */
+.camera-row {
+  display: flex;
+  gap: 8px;
+  margin: 0 1.75rem 0;
+}
+
+.btn-camera {
+  flex: 1;
+  padding: 8px;
+  background: transparent;
+  color: #555;
+  border: 1px solid #1f1f1f;
+  border-radius: 6px;
+  font-family: var(--mono);
+  font-size: 10px;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+  letter-spacing: 0.05em;
+  text-align: center;
+}
+
+.btn-camera:hover { color: var(--white); border-color: #3a3a3a; }
+
+/* CONFIDENCE BAR */
+.conf-bar-wrap {
+  background: #1a1a1a;
+  border-radius: 3px;
+  height: 4px;
+  overflow: hidden;
+  margin-top: 6px;
+}
+
+.conf-bar {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.6s cubic-bezier(0.16,1,0.3,1);
+}
+
+.conf-bar.pass { background: var(--green-bright); }
+.conf-bar.fail { background: var(--red-bright); }
+.conf-bar.uncertain { background: var(--amber-bright); }
+
+/* Error */
+.result-error {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  gap: 10px;
+}
+
+.error-icon { font-size: 2rem; }
+.error-text { font-family: var(--mono); font-size: 11px; color: #f87171; text-align: center; line-height: 1.6; }
+.error-sub { font-family: var(--mono); font-size: 10px; color: #555; text-align: center; }
+
+#camera-input { display: none; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-dot"></div>
+    QualityEye
+  </div>
+  <div class="header-meta">DEMO v1.0 &nbsp;·&nbsp; INDUSTRI GARMEN</div>
+</header>
+
+<main class="main">
+  <!-- LEFT: Input -->
+  <div class="panel-left">
+    <div class="panel-header">
+      <div>
+        <div class="panel-label">Inspeksi</div>
+        <div class="panel-title">Upload foto produk</div>
+      </div>
+    </div>
+
+    <div class="config-row">
+      <div class="config-item">
+        <div class="config-label">Lini</div>
+        <select class="config-select" id="sel-lini">
+          <option>Lini A</option>
+          <option>Lini B</option>
+          <option>Lini C</option>
+        </select>
+      </div>
+      <div class="config-item">
+        <div class="config-label">Modul produk</div>
+        <select class="config-select" id="sel-modul">
+          <option value="garmen">Garmen / Tekstil</option>
+          <option value="plastik">Plastik Injection</option>
+          <option value="kemasan">Kemasan / Label</option>
+          <option value="umum">Umum (General)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="upload-zone" id="upload-zone">
+      <img id="preview-img" alt="Preview produk">
+      <div class="upload-placeholder" id="upload-placeholder">
+        <div class="upload-icon">📷</div>
+        <div class="upload-text">Upload foto produk</div>
+        <div class="upload-sub">Klik atau drag &amp; drop gambar di sini</div>
+      </div>
+      <input type="file" id="file-input" accept="image/*">
+    </div>
+
+    <div class="camera-row" style="margin-bottom:10px;">
+      <button class="btn-camera" onclick="document.getElementById('file-input').click()">📁 Pilih file</button>
+      <input type="file" id="camera-input" accept="image/*" capture="environment">
+      <button class="btn-camera" onclick="document.getElementById('camera-input').click()">📱 Kamera</button>
+    </div>
+
+    <div class="actions">
+      <button class="btn-inspect" id="btn-inspect" disabled onclick="runInspect()">
+        <span id="btn-text">Pilih foto dulu</span>
+      </button>
+      <button class="btn-clear" onclick="clearAll()">Hapus &amp; reset</button>
+    </div>
+  </div>
+
+  <!-- RIGHT: Result -->
+  <div class="panel-right">
+    <div class="panel-header">
+      <div>
+        <div class="panel-label">Hasil Analisis AI</div>
+        <div class="panel-title">Deteksi cacat otomatis</div>
+      </div>
+      <div id="result-badge" style="display:none;"></div>
+    </div>
+
+    <div class="result-area">
+      <div class="result-idle" id="state-idle">
+        <div class="result-idle-icon">◎</div>
+        <div class="result-idle-text">MENUNGGU GAMBAR</div>
+      </div>
+
+      <div class="result-loading" id="state-loading">
+        <div class="spinner"></div>
+        <div class="loading-text">MENGANALISIS...</div>
+        <div class="loading-steps" id="loading-steps">Mengirim ke Vision AI</div>
+      </div>
+
+      <div class="result-error" id="state-error">
+        <div class="error-icon">⚠️</div>
+        <div class="error-text" id="error-msg">Terjadi kesalahan saat menganalisis.</div>
+        <div class="error-sub">Coba lagi atau ganti gambar</div>
+      </div>
+
+      <div class="result-card" id="state-result">
+        <div class="verdict-banner" id="verdict-banner">
+          <div class="verdict-icon" id="verdict-icon"></div>
+          <div>
+            <div class="verdict-label" id="verdict-label"></div>
+            <div class="verdict-title" id="verdict-title"></div>
+          </div>
+          <div class="verdict-conf">
+            <div class="conf-num" id="conf-num"></div>
+            <div class="conf-label">CONFIDENCE</div>
+            <div class="conf-bar-wrap"><div class="conf-bar" id="conf-bar"></div></div>
+          </div>
+        </div>
+
+        <div class="detail-grid">
+          <div class="detail-cell">
+            <div class="detail-cell-label">Jenis cacat</div>
+            <div class="detail-cell-value" id="d-jenis">—</div>
+          </div>
+          <div class="detail-cell">
+            <div class="detail-cell-label">Tingkat keparahan</div>
+            <div class="detail-cell-value" id="d-sev">—</div>
+          </div>
+          <div class="detail-cell">
+            <div class="detail-cell-label">Area / Lokasi</div>
+            <div class="detail-cell-value" id="d-area">—</div>
+          </div>
+          <div class="detail-cell">
+            <div class="detail-cell-label">Modul aktif</div>
+            <div class="detail-cell-value" id="d-modul">—</div>
+          </div>
+        </div>
+
+        <div class="result-desc" id="result-desc"></div>
+        <div class="result-rec" id="result-rec"></div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- LOG -->
+<div class="log-section">
+  <div class="log-header">
+    <div>
+      <div class="panel-label">Riwayat Inspeksi</div>
+    </div>
+    <div class="log-count" id="log-count">0 inspeksi</div>
+  </div>
+  <div class="log-list" id="log-list">
+    <div style="padding:16px 1.75rem;font-family:var(--mono);font-size:10px;color:#333;letter-spacing:0.06em;">BELUM ADA RIWAYAT</div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-left">
+    <div class="stat-block">
+      <span class="stat-num" id="stat-total">0</span>
+      <span>total</span>
+    </div>
+    <div class="stat-block">
+      <span class="stat-num" style="color:var(--green-bright)" id="stat-pass">0</span>
+      <span>lulus</span>
+    </div>
+    <div class="stat-block">
+      <span class="stat-num" style="color:var(--red-bright)" id="stat-fail">0</span>
+      <span>cacat</span>
+    </div>
+    <div class="stat-block">
+      <span class="stat-num" id="stat-rate">—</span>
+      <span>pass rate</span>
+    </div>
+  </div>
+  <div class="footer-right">QualityEye Demo · Claude Vision API</div>
+</footer>
+
+<script>
+let currentFile = null;
+let stats = {
+  total: 0,
+  pass: 0,
+  fail: 0,
+  uncertain: 0
+};
+
+let inspCount = 0;
+
+const fakeResults = [
+  {
+    status: "pass",
+    defect_type: "Tidak ada cacat",
+    severity: "Tidak ada",
+    location: "N/A",
+    description: "Produk lolos inspeksi visual.",
+    recommendation: "Produk dapat diteruskan ke proses berikutnya."
+  },
+  {
+    status: "fail",
+    defect_type: "Noda kain",
+    severity: "Major",
+    location: "Bagian depan kanan",
+    description: "Terdapat noda cukup besar pada permukaan produk.",
+    recommendation: "Pisahkan produk dan lakukan pengecekan ulang."
+  },
+  {
+    status: "fail",
+    defect_type: "Jahitan tidak rapi",
+    severity: "Minor",
+    location: "Area lengan kiri",
+    description: "AI mendeteksi jahitan tidak konsisten.",
+    recommendation: "Perlu perbaikan stitching."
+  },
+  {
+    status: "uncertain",
+    defect_type: "Kemungkinan cacat visual",
+    severity: "Tidak pasti",
+    location: "Area tengah",
+    description: "AI tidak yakin terhadap hasil inspeksi.",
+    recommendation: "Supervisor perlu verifikasi manual."
+  }
+];
+
+const zones = {
+  idle: document.getElementById("state-idle"),
+  loading: document.getElementById("state-loading"),
+  result: document.getElementById("state-result"),
+  error: document.getElementById("state-error")
+};
+
+function showState(name){
+  Object.entries(zones).forEach(([k,el])=>{
+    el.style.display = k === name ? "flex" : "none";
+  });
+}
+
+const uploadZone = document.getElementById("upload-zone");
+const fileInput = document.getElementById("file-input");
+const cameraInput = document.getElementById("camera-input");
+
+uploadZone.addEventListener("click", ()=> fileInput.click());
+
+fileInput.addEventListener("change", e=>{
+  handleFile(e.target.files[0]);
+});
+
+cameraInput.addEventListener("change", e=>{
+  handleFile(e.target.files[0]);
+});
+
+function handleFile(file){
+  if(!file) return;
+
+  currentFile = file;
+
+  const reader = new FileReader();
+
+  reader.onload = function(e){
+    const img = document.getElementById("preview-img");
+
+    img.src = e.target.result;
+    img.style.display = "block";
+
+    document.getElementById("upload-placeholder").style.display = "none";
+
+    document.getElementById("btn-inspect").disabled = false;
+
+    document.getElementById("btn-text").textContent =
+      "🔍 Mulai Inspeksi AI";
+  };
+
+  reader.readAsDataURL(file);
+
+  showState("idle");
+}
+
+function clearAll(){
+
+  currentFile = null;
+
+  document.getElementById("preview-img").style.display = "none";
+
+  document.getElementById("upload-placeholder").style.display =
+    "block";
+
+  document.getElementById("btn-inspect").disabled = true;
+
+  document.getElementById("btn-text").textContent =
+    "Pilih foto dulu";
+
+  showState("idle");
+}
+
+async function runInspect(){
+
+  if(!currentFile) return;
+
+  showState("loading");
+
+  document.getElementById("btn-inspect").disabled = true;
+
+  document.getElementById("btn-text").textContent =
+    "Menganalisis...";
+
+  await new Promise(resolve=>setTimeout(resolve,2000));
+
+  const randomError = Math.random() < 0.1;
+
+  if(randomError){
+    showError("Simulasi server timeout.");
+    return;
+  }
+
+  const result =
+    fakeResults[
+      Math.floor(Math.random()*fakeResults.length)
+    ];
+
+  result.confidence =
+    Math.floor(Math.random()*15)+85;
+
+  showResult(result);
+
+  document.getElementById("btn-inspect").disabled = false;
+
+  document.getElementById("btn-text").textContent =
+    "🔍 Inspeksi Lagi";
+}
+
+function showResult(r){
+
+  showState("result");
+
+  const conf = r.confidence;
+
+  const banner =
+    document.getElementById("verdict-banner");
+
+  banner.className =
+    "verdict-banner " + r.status;
+
+  const icons = {
+    pass:"✓",
+    fail:"✕",
+    uncertain:"?"
+  };
+
+  const titles = {
+    pass:"LULUS QC",
+    fail:"CACAT TERDETEKSI",
+    uncertain:"PERLU CEK MANUAL"
+  };
+
+  document.getElementById("verdict-icon").textContent =
+    icons[r.status];
+
+  document.getElementById("verdict-label").textContent =
+    "STATUS INSPEKSI";
+
+  document.getElementById("verdict-title").textContent =
+    titles[r.status];
+
+  document.getElementById("conf-num").textContent =
+    conf + "%";
+
+  const bar = document.getElementById("conf-bar");
+
+  bar.className = "conf-bar " + r.status;
+
+  bar.style.width = conf + "%";
+
+  document.getElementById("d-jenis").textContent =
+    r.defect_type;
+
+  document.getElementById("d-sev").textContent =
+    r.severity;
+
+  document.getElementById("d-area").textContent =
+    r.location;
+
+  document.getElementById("d-modul").textContent =
+    document.getElementById("sel-modul")
+    .selectedOptions[0].text;
+
+  document.getElementById("result-desc").textContent =
+    r.description;
+
+  const rec = document.getElementById("result-rec");
+
+  rec.className =
+    "result-rec " + r.status;
+
+  rec.textContent =
+    "→ " + r.recommendation;
+
+  stats.total++;
+
+  stats[r.status]++;
+
+  updateStats();
+
+  addLog(r.status,r.defect_type);
+}
+
+function showError(msg){
+
+  showState("error");
+
+  document.getElementById("error-msg").textContent =
+    msg;
+
+  document.getElementById("btn-inspect").disabled =
+    false;
+
+  document.getElementById("btn-text").textContent =
+    "🔍 Coba Lagi";
+}
+
+function updateStats(){
+
+  document.getElementById("stat-total").textContent =
+    stats.total;
+
+  document.getElementById("stat-pass").textContent =
+    stats.pass;
+
+  document.getElementById("stat-fail").textContent =
+    stats.fail;
+
+  const rate =
+    stats.total > 0
+      ? Math.round((stats.pass/stats.total)*100)
+      : 0;
+
+  document.getElementById("stat-rate").textContent =
+    rate + "%";
+}
+
+function addLog(status,type){
+
+  inspCount++;
+
+  const list =
+    document.getElementById("log-list");
+
+  const empty =
+    list.querySelector('div[style]');
+
+  if(empty) empty.remove();
+
+  const time =
+    new Date().toLocaleTimeString("id-ID");
+
+  const item =
+    document.createElement("div");
+
+  item.className = "log-item";
+
+  item.innerHTML = `
+    <div class="log-dot ${status}"></div>
+
+    <span class="log-product">
+      #${String(inspCount).padStart(4,"0")}
+    </span>
+
+    <span class="log-type">
+      ${type}
+    </span>
+
+    <span class="log-time">
+      ${time}
+    </span>
+  `;
+
+  list.prepend(item);
+
+  document.getElementById("log-count").textContent =
+    inspCount + " inspeksi";
+}
+
+showState("idle");
+</script>
+</body>
+</html>
